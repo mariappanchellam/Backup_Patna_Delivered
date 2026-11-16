@@ -71,6 +71,7 @@ public:
     Q_PROPERTY(QString mainVideoUrl READ mainVideoUrl                           NOTIFY mainVideoUrlChanged)    ///< Camera stream on the main screen (day or night)
     Q_PROPERTY(int  nativeTransport READ nativeTransport WRITE setNativeTransport NOTIFY nativeTransportChanged) ///< NativeTransport, saved; the fast player reconnects when it changes
     Q_PROPERTY(bool nativeTcp       READ nativeTcp                              NOTIFY nativeTransportChanged)
+    Q_PROPERTY(int  nativeMaxFps    READ nativeMaxFps   WRITE setNativeMaxFps   NOTIFY nativeMaxFpsChanged)    ///< Fast player: pictures drawn per second at most, 0 for all; saved
     Q_PROPERTY(QString nativeVideoStatus READ nativeVideoStatus WRITE setNativeVideoStatus NOTIFY nativeVideoStatusChanged) ///< What the fast player receives, set by the Fly View
     Q_PROPERTY(QString flightLogPath     READ flightLogPath     CONSTANT)   ///< This run's flight log file (opened before the UI)
 
@@ -109,6 +110,8 @@ public:
     int                     nativeTransport() const { return _nativeTransport; }
     void                    setNativeTransport(int transport);
     bool                    nativeTcp() const { return _nativeTransport == NativeTransportTcp; }
+    int                     nativeMaxFps() const { return _nativeMaxFps; }
+    void                    setNativeMaxFps(int maxFps);
     QString                 nativeVideoStatus() const { return _nativeVideoStatus; }
     static QString          flightLogPath();
     void                    setNativeVideoStatus(const QString& status);
@@ -152,6 +155,7 @@ signals:
     void nativeVideoChanged();
     void mainVideoUrlChanged();
     void nativeTransportChanged();
+    void nativeMaxFpsChanged();
     void nativeVideoStatusChanged();
     /// apply(): the fast player reconnects to the camera
     void videoRestartRequested();
@@ -180,5 +184,6 @@ private:
     bool                    _nativeVideoActive = false;
     QString                 _mainVideoUrl;
     int                     _nativeTransport = NativeTransportTcp;
+    int                     _nativeMaxFps = 0;
     QString                 _nativeVideoStatus;
 };

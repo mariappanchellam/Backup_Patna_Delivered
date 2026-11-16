@@ -20,6 +20,7 @@ class DhakshaVideoItem : public QQuickItem
     Q_PROPERTY(bool tcp READ tcp WRITE setTcp NOTIFY tcpChanged)  ///< RTP over the RTSP connection, else over UDP
     Q_PROPERTY(bool cropToFill READ cropToFill WRITE setCropToFill NOTIFY
                    cropToFillChanged)  ///< Fill the item, cropping the video, instead of fitting it
+    Q_PROPERTY(int maxFps READ maxFps WRITE setMaxFps NOTIFY maxFpsChanged)  ///< Pictures drawn per second at most, 0 for all
     Q_PROPERTY(bool playing READ playing NOTIFY playingChanged)  ///< Frames are arriving
     Q_PROPERTY(QSize videoSize READ videoSize NOTIFY videoSizeChanged)
     Q_PROPERTY(QString decoderName READ decoderName NOTIFY videoSizeChanged)
@@ -39,6 +40,7 @@ public:
     bool tcp() const { return _tcp; }
 
     bool cropToFill() const { return _cropToFill; }
+    int maxFps() const { return _maxFps; }
 
     bool playing() const { return _playing; }
 
@@ -61,6 +63,7 @@ public:
     void setSource(const QString& source);
     void setTcp(bool tcp);
     void setCropToFill(bool cropToFill);
+    void setMaxFps(int maxFps);
 
     /// Reconnects to the camera
     Q_INVOKABLE void restart();
@@ -69,6 +72,7 @@ signals:
     void sourceChanged();
     void tcpChanged();
     void cropToFillChanged();
+    void maxFpsChanged();
     void playingChanged();
     void videoSizeChanged();
     void statsChanged();
@@ -85,6 +89,7 @@ private:
     QString _source;
     bool _tcp = true;
     bool _cropToFill = false;
+    int _maxFps = 0;
     bool _playing = false;
     QSize _videoSize;
     QString _decoderName;
@@ -99,4 +104,6 @@ private:
     QTimer _restartTimer;
     QTimer _statusTimer;
     std::atomic<bool> _updateQueued{false};
+
+    static constexpr int kVisibilitySettleMs = 300;
 };

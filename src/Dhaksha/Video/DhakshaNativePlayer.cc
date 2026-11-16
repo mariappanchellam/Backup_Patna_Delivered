@@ -373,11 +373,18 @@ bool DhakshaDecoderCore::_drainOutputs(qint64 now)
         const ssize_t index = AMediaCodec_dequeueOutputBuffer(_codec, &info, 0);
         if (index >= 0) {
             // Drawn now, not at a presentation time: the newest frame is always the one shown
-            const bool render = info.size > 0;
+            // With a picture rate limit, a picture that comes too soon after the last drawn one is skipped;
+            // 2 ms of slack keeps a camera at exactly the limit from losing every other picture
+            const int maxFps = _maxFps.load(std::memory_order_acquire);
+            const bool due = (maxFps <= 0) || ((now - _lastDrawMs) >= (1000 / maxFps - 2));
+            const bool render = (info.size > 0) && due;
             (void) AMediaCodec_releaseOutputBuffer(_codec, static_cast<size_t>(index), render);
+            if (info.size > 0) {
+                _lastOutputMs = now;
+            }
             if (render) {
                 rendered = true;
-                _lastOutputMs = now;
+                _lastDrawMs = now;
                 _lastRenderedNs.store(info.presentationTimeUs * 1000, std::memory_order_release);
                 _framesRendered.fetch_add(1, std::memory_order_acq_rel);
             }

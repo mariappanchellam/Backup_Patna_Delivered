@@ -450,6 +450,20 @@ Rectangle {
                                 onActivated:            DhakshaCameraManager.nativeTransport = index
                             }
 
+                            // Fewer pictures a second means less work for the screen, so less heat
+                            QGCLabel {
+                                text:       qsTr("Picture Rate")
+                                visible:    _fastPlayer
+                            }
+                            QGCComboBox {
+                                Layout.preferredWidth:  _comboFieldWidth * 1.6
+                                visible:                _fastPlayer
+                                model:                  [ qsTr("Full (every picture from the camera)"), qsTr("20 a second (less heat)"), qsTr("15 a second (least heat)") ]
+                                property var rates:     [ 0, 20, 15 ]
+                                currentIndex:           Math.max(0, rates.indexOf(DhakshaCameraManager.nativeMaxFps))
+                                onActivated:            DhakshaCameraManager.nativeMaxFps = rates[index]
+                            }
+
                             QGCLabel {
                                 text:       qsTr("Video")
                                 visible:    !_fastPlayer

@@ -141,6 +141,7 @@ Item {
             visible:        _nativeVideo
             source:         _nativeVideo ? DhakshaCameraManager.mainVideoUrl : ""
             tcp:            DhakshaCameraManager.nativeTcp
+            maxFps:         DhakshaCameraManager.nativeMaxFps
 
             function reportStatus() {
                 DhakshaCameraManager.nativeVideoStatus = !connected ? qsTr("Fast player: connecting to the camera")

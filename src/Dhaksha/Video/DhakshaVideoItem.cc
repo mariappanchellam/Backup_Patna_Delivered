@@ -412,6 +412,15 @@ void DhakshaVideoItem::setCropToFill(bool cropToFill)
     }
 }
 
+void DhakshaVideoItem::setMaxFps(int maxFps)
+{
+    if (maxFps != _maxFps) {
+        _maxFps = maxFps;
+        _player->decoder()->setMaxFps(maxFps);
+        emit maxFpsChanged();
+    }
+}
+
 void DhakshaVideoItem::restart()
 {
     _restartTimer.stop();
@@ -437,7 +446,7 @@ void DhakshaVideoItem::restart()
 
 void DhakshaVideoItem::_scheduleRestart()
 {
-    _restartTimer.start();
+    _restartTimer.start(0);
 }
 
 void DhakshaVideoItem::_updateStatus()
@@ -494,7 +503,9 @@ void DhakshaVideoItem::itemChange(ItemChange change, const ItemChangeData& value
 {
     QQuickItem::itemChange(change, value);
     if ((change == ItemVisibleHasChanged) || (change == ItemSceneChange)) {
-        _scheduleRestart();
+        // Going in and out of the settings pages quickly hides and shows the Fly View many times a second:
+        // the camera connection and the decoder are stopped or started once, after the presses have settled
+        _restartTimer.start(kVisibilitySettleMs);
     }
 }
 

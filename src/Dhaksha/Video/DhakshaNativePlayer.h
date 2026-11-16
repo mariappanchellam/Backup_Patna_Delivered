@@ -58,6 +58,11 @@ public:
     /// Frames not decoded: dropped when the decoder fell behind, or while waiting for a key frame
     quint64 framesDropped() const { return _framesDropped.load(std::memory_order_acquire); }
 
+    /// Most pictures drawn per second, 0 for every picture the camera sends. Pictures above the limit are
+    /// still decoded but not sent to the screen, which saves the copy to the GPU and the redraw of the
+    /// whole Fly View for each of them.
+    void setMaxFps(int maxFps) { _maxFps.store(qMax(0, maxFps), std::memory_order_release); }
+
     /// Presentation time of the newest frame released to the surface; the surface reports it per frame
     qint64 lastRenderedTimestampNs() const { return _lastRenderedNs.load(std::memory_order_acquire); }
 
@@ -110,6 +115,8 @@ private:
     std::atomic<quint64> _framesRendered{0};
     std::atomic<quint64> _framesDropped{0};
     std::atomic<qint64> _lastRenderedNs{0};
+    std::atomic<int> _maxFps{0};
+    [[maybe_unused]] qint64 _lastDrawMs = 0;
 
     std::mutex _callbackMutex;
     std::function<void()> _frameCallback;

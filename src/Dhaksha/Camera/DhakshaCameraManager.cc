@@ -40,6 +40,7 @@ namespace {
     const char* kPipCameraKey   = "pipCamera";
     const char* kNativeVideoKey = "nativeVideo";
     const char* kNativeTransportKey = "nativeTransport";
+    const char* kNativeMaxFpsKey = "nativeMaxFps";
 
     QString vendorKey(int vendor)
     {
@@ -77,6 +78,7 @@ DhakshaCameraManager::DhakshaCameraManager(QObject* parent)
     _nativeVideo = settings.value(kNativeVideoKey, true).toBool();
     _nativeTransport = qBound(static_cast<int>(NativeTransportTcp), settings.value(kNativeTransportKey, NativeTransportTcp).toInt(),
                               static_cast<int>(NativeTransportUdp));
+    _nativeMaxFps = qBound(0, settings.value(kNativeMaxFpsKey, 0).toInt(), 60);
     settings.endGroup();
     _loadVendorSettings();
 }
@@ -349,6 +351,18 @@ void DhakshaCameraManager::setNativeVideo(bool native)
         settings.beginGroup(kSettingsGroup);
         settings.setValue(kNativeVideoKey, native);
         _applyNativeVideo();
+    }
+}
+
+void DhakshaCameraManager::setNativeMaxFps(int maxFps)
+{
+    maxFps = qBound(0, maxFps, 60);
+    if (maxFps != _nativeMaxFps) {
+        _nativeMaxFps = maxFps;
+        QSettings settings;
+        settings.beginGroup(kSettingsGroup);
+        settings.setValue(kNativeMaxFpsKey, maxFps);
+        emit nativeMaxFpsChanged();
     }
 }
 
